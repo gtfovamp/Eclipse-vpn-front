@@ -14,26 +14,23 @@ const ServerList: React.FC<ServerListProps> = ({ servers, isLoading, error, filt
   // Function to filter servers based on filter state
   const getFilteredServers = () => {
     return servers.filter((server) => {
-      // Search filter
-      const searchMatch =
-        filters.search === '' ||
-        server.location.toLowerCase().includes(filters.search.toLowerCase()) ||
-        server.serverIP.includes(filters.search);
+      // Search filter - check host, IP, and country
+      const searchMatch = !filters.search || 
+        server.host.toLowerCase().includes(filters.search.toLowerCase()) ||
+        server.ip.includes(filters.search) ||
+        server.country.toLowerCase().includes(filters.search.toLowerCase());
 
-      // Region filter
-      const regionMatch =
-        filters.region === '' ||
-        server.country.toLowerCase().includes(filters.region.toLowerCase());
+      // Region filter - match country
+      const regionMatch = !filters.region ||
+        server.country.toLowerCase() === filters.region.toLowerCase();
 
       // Protocol filter
-      const protocolMatch =
-        filters.protocol === '' ||
-        server.protocol.toLowerCase() === filters.protocol.toLowerCase();
+      const protocolMatch = !filters.protocol ||
+        server.protocol.toLowerCase().includes(filters.protocol.toLowerCase());
 
-      // Status filter
-      const statusMatch =
-        filters.status === '' ||
-        server.status === filters.status;
+      // Status filter - exact match with server status
+      const statusMatch = !filters.status ||
+        server.status === filters.status.toLowerCase();
 
       return searchMatch && regionMatch && protocolMatch && statusMatch;
     });

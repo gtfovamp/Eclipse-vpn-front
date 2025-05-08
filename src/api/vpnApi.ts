@@ -2,7 +2,28 @@ import { VPNServer } from '../types/vpn';
 
 const API_URL = 'https://eclipse-vpn-api.onrender.com/vpn-data/';
 
-// Определим интерфейс для ответа API
+// Country flag emojis mapping
+const countryFlags: { [key: string]: string } = {
+  'United States': '🇺🇸',
+  'United Kingdom': '🇬🇧',
+  'Canada': '🇨🇦',
+  'Germany': '🇩🇪',
+  'France': '🇫🇷',
+  'Netherlands': '🇳🇱',
+  'Japan': '🇯🇵',
+  'Singapore': '🇸🇬',
+  'Australia': '🇦🇺',
+  'Brazil': '🇧🇷',
+  'India': '🇮🇳',
+  'South Korea': '🇰🇷',
+  // Add more countries as needed
+};
+
+// Get country flag emoji
+export const getCountryFlag = (country: string): string => {
+  return countryFlags[country] || '🌐';
+};
+
 interface ApiResponse {
   host: string;
   ip: string;
@@ -49,18 +70,15 @@ export const getProtocolIcon = (protocol: string): string => {
 
 export const fetchVPNServers = async (): Promise<VPNServer[]> => {
   try {
-    console.log(1);
     const response = await fetch(API_URL);
-    console.log(2);
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
     
     const data: ApiResponse[] = await response.json();
-    console.log(3);
-    // Преобразуем данные API в формат VPNServer
+    
     return data.map((server): VPNServer => ({
-      id: server.ip,  // Используем IP как уникальный идентификатор
+      id: server.ip,
       host: server.host,
       ip: server.ip,
       score: server.score,
@@ -72,8 +90,8 @@ export const fetchVPNServers = async (): Promise<VPNServer[]> => {
       total_users: server.total_users,
       total_traffic: server.total_traffic,
       config: server.config,
-      status: getServerStatus(server.sessions), // Используем sessions как нагрузку
-      flag: '🌐',  // Добавьте логику для флагов при необходимости
+      status: getServerStatus(server.sessions),
+      flag: getCountryFlag(server.country),
       protocol: server.config.includes('udp') ? 'OpenVPN UDP' : 'OpenVPN TCP',
       emoji: getStatusEmoji(getServerStatus(server.sessions))
     }));

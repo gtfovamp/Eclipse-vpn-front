@@ -24,9 +24,24 @@ const Filters: React.FC<FiltersProps> = ({ filterState, setFilterState }) => {
     [filterState, setFilterState]
   );
 
-  const regions = ['All Regions', 'North America', 'Europe', 'Asia', 'Oceania', 'South America', 'Africa'];
-  const protocols = ['All Protocols', 'WireGuard', 'OpenVPN'];
-  const statuses = ['All Status', 'Active', 'High Load', 'Offline'];
+  const countries = [
+    'All Countries',
+    'United States',
+    'United Kingdom',
+    'Canada',
+    'Germany',
+    'France',
+    'Netherlands',
+    'Japan',
+    'Singapore',
+    'Australia',
+    'Brazil',
+    'India',
+    'South Korea'
+  ];
+
+  const protocols = ['All Protocols', 'OpenVPN UDP', 'OpenVPN TCP'];
+  const statuses = ['All Status', 'active', 'high-load', 'offline'];
 
   return (
     <div className="py-4 space-y-4">
@@ -34,7 +49,7 @@ const Filters: React.FC<FiltersProps> = ({ filterState, setFilterState }) => {
         <Search className="h-5 w-5 text-gray-500 absolute left-3 top-1/2 transform -translate-y-1/2" />
         <input
           type="text"
-          placeholder="Search servers by location or IP..."
+          placeholder="Search servers by location, country, or IP..."
           className="w-full pl-10 pr-4 py-2 bg-[#1A1A1A] border border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#007AFF] text-white transition-all duration-300"
           onChange={(e) => handleSearch(e.target.value)}
         />
@@ -48,9 +63,9 @@ const Filters: React.FC<FiltersProps> = ({ filterState, setFilterState }) => {
             onChange={(e) => setFilterState({ ...filterState, region: e.target.value })}
             className="pl-9 pr-8 py-1 bg-[#1A1A1A] border border-gray-800 rounded-lg appearance-none focus:outline-none focus:ring-1 focus:ring-[#007AFF] text-gray-300 text-sm"
           >
-            {regions.map((region) => (
-              <option key={region} value={region === 'All Regions' ? '' : region}>
-                {region}
+            {countries.map((country) => (
+              <option key={country} value={country === 'All Countries' ? '' : country}>
+                {country}
               </option>
             ))}
           </select>
@@ -89,7 +104,7 @@ const Filters: React.FC<FiltersProps> = ({ filterState, setFilterState }) => {
             className="pl-9 pr-8 py-1 bg-[#1A1A1A] border border-gray-800 rounded-lg appearance-none focus:outline-none focus:ring-1 focus:ring-[#007AFF] text-gray-300 text-sm"
           >
             {statuses.map((status) => (
-              <option key={status} value={status === 'All Status' ? '' : status.toLowerCase()}>
+              <option key={status} value={status === 'All Status' ? '' : status}>
                 {status}
               </option>
             ))}
