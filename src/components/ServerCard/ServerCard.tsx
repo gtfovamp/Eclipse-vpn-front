@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, ArrowRight, Wifi } from 'lucide-react';
+import { Download, ArrowRight, Wifi } from 'lucide-react';
 import { VPNServer } from '../../types/vpn';
 import { getStatusEmoji, getProtocolIcon } from '../../api/vpnApi';
 
@@ -8,7 +8,7 @@ interface ServerCardProps {
 }
 
 const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
-  const [copied, setCopied] = useState<boolean>(false);
+  const [downloading, setDownloading] = useState<boolean>(false);
 
   const getStatusColor = (status: string): string => {
     switch (status) {
@@ -29,10 +29,29 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
     return 'text-red-500';
   };
 
-  const handleCopyConfig = () => {
-    navigator.clipboard.writeText(server.config);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleDownloadConfig = () => {
+    setDownloading(true);
+    
+    try {
+      // Create blob from config
+      const blob = new Blob([server.config], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `eclipse-vpn-${server.host.toLowerCase().replace(/\s+/g, '-')}.ovpn`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download config:', error);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -77,7 +96,7 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
       </div>
       
       {/* Ping indicator */}
-      <div className="flex items-center mb-5">
+      <div className="flex items-center mb-4">
         <span className="text-xs text-gray-400">Ping:</span>
         <span className="ml-1 text-xs font-medium text-white">{server.ping} ms</span>
         <div className="ml-2 flex h-1.5 w-16 overflow-hidden rounded-full bg-gray-700">
@@ -96,20 +115,21 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
         <span className="ml-1 text-xs font-medium text-white">{server.speed} Mbps</span>
       </div>
       
-      {/* Action button */}
+      {/* Connect button */}
       <button
-        onClick={handleCopyConfig}
-        className="w-full flex items-center justify-center text-sm px-4 py-2 rounded-lg bg-[#007AFF] hover:bg-[#0070E8] text-white font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#007AFF] focus:ring-offset-[#1A1A1A]"
+        onClick={handleDownloadConfig}
+        disabled={downloading || server.status === 'offline'}
+        className="w-full flex items-center justify-center text-sm px-4 py-2 rounded-lg bg-[#007AFF] hover:bg-[#0070E8] text-white font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#007AFF] focus:ring-offset-[#1A1A1A] disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {copied ? (
+        {downloading ? (
           <>
-            <Check className="h-4 w-4 mr-1.5" />
-            Config Copied
+            <Download className="h-4 w-4 mr-1.5 animate-bounce" />
+            Downloading...
           </>
         ) : (
           <>
-            <Copy className="h-4 w-4 mr-1.5" />
-            Copy Config
+            <Download className="h-4 w-4 mr-1.5" />
+            Download Config
           </>
         )}
       </button>
