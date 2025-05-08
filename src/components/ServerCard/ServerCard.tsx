@@ -23,28 +23,14 @@ const ServerCard: React.FC<ServerCardProps> = ({ server }) => {
     }
   };
 
-  const getLoadColor = (load: number): string => {
-    if (load < 50) return 'text-green-500';
-    if (load < 85) return 'text-yellow-500';
+  const getLoadColor = (sessions: number): string => {
+    if (sessions < 50) return 'text-green-500';
+    if (sessions < 85) return 'text-yellow-500';
     return 'text-red-500';
   };
 
   const handleCopyConfig = () => {
-    const config = `
-# EclipseVPN Config for ${server.location}
-[Interface]
-PrivateKey = <your-private-key>
-Address = 10.0.0.2/24
-DNS = 1.1.1.1, 1.0.0.1
-
-[Peer]
-PublicKey = <server-public-key>
-Endpoint = ${server.serverIP}:51820
-AllowedIPs = 0.0.0.0/0
-PersistentKeepalive = 25
-`.trim();
-
-    navigator.clipboard.writeText(config);
+    navigator.clipboard.writeText(server.config);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -54,7 +40,7 @@ PersistentKeepalive = 25
       {/* Status indicator dot */}
       <div className={`absolute top-3 right-3 flex items-center ${getStatusColor(server.status)}`}>
         <span aria-label={`Server status: ${server.status}`} className="mr-1">
-          {getStatusEmoji(server.status)}
+          {server.emoji}
         </span>
         <span className="text-xs opacity-60 capitalize">{server.status}</span>
       </div>
@@ -62,7 +48,7 @@ PersistentKeepalive = 25
       {/* Server location */}
       <div className="flex items-center mb-4">
         <span className="text-2xl mr-2" aria-hidden="true">{server.flag}</span>
-        <h3 className="text-lg font-medium text-white">{server.location}</h3>
+        <h3 className="text-lg font-medium text-white">{server.host}</h3>
       </div>
       
       {/* Server IP */}
@@ -72,7 +58,7 @@ PersistentKeepalive = 25
         </div>
         <div>
           <div className="text-sm text-gray-400">Server IP</div>
-          <div className="text-white font-mono tracking-tight">{server.serverIP}</div>
+          <div className="text-white font-mono tracking-tight">{server.ip}</div>
         </div>
       </div>
       
@@ -84,8 +70,8 @@ PersistentKeepalive = 25
         </span>
         
         <div className="ml-3 flex items-center">
-          <div className={`text-sm ${getLoadColor(server.load)}`}>
-            {server.load}% Load
+          <div className={`text-sm ${getLoadColor(server.sessions)}`}>
+            {server.sessions}% Load
           </div>
         </div>
       </div>
@@ -102,6 +88,12 @@ PersistentKeepalive = 25
             style={{ width: `${Math.min(100, (server.ping / 200) * 100)}%` }}
           />
         </div>
+      </div>
+
+      {/* Speed indicator */}
+      <div className="flex items-center mb-5">
+        <span className="text-xs text-gray-400">Speed:</span>
+        <span className="ml-1 text-xs font-medium text-white">{server.speed} Mbps</span>
       </div>
       
       {/* Action button */}
